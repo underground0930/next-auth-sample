@@ -2,13 +2,9 @@
 
 import { useRouter } from "next/navigation";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { fetchUser, logout, User } from "@/lib/api";
+import { fetchUser, logout } from "@/lib/api";
 
-type UseAuthOptions = {
-  initialUser?: User | null;
-};
-
-export function useAuth(options?: UseAuthOptions) {
+export function useAuth() {
   const router = useRouter();
   const queryClient = useQueryClient();
 
@@ -21,7 +17,6 @@ export function useAuth(options?: UseAuthOptions) {
     queryKey: ["user"],
     queryFn: fetchUser,
     retry: false,
-    initialData: options?.initialUser,
   });
 
   // ログアウトmutation
