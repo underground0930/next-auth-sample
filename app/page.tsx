@@ -1,46 +1,38 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-
-interface User {
-  id: string;
-  name: string;
-  email: string;
-}
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { fetchUser, logout } from "@/lib/api";
 
 export default function Home() {
-  const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
   const router = useRouter();
+  const queryClient = useQueryClient();
 
-  useEffect(() => {
-    const checkAuth = async () => {
-      try {
-        const response = await fetch("/api/user");
-        if (response.ok) {
-          const data = await response.json();
-          setUser(data.user);
-        }
-      } catch (error) {
-        console.error("Auth check error:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
+  // ユーザー情報を取得
+  const {
+    data: user,
+    isLoading,
+    isError,
+  } = useQuery({
+    queryKey: ["user"],
+    queryFn: fetchUser,
+    retry: false, // 401エラーの場合はリトライしない
+  });
 
-    checkAuth();
-  }, []);
-
-  const handleLogout = async () => {
-    try {
-      await fetch("/api/logout", { method: "POST" });
-      setUser(null);
+  // ログアウトmutation
+  const logoutMutation = useMutation({
+    mutationFn: logout,
+    onSuccess: () => {
+      // ログアウト成功時、ユーザー情報のキャッシュをクリア
+      queryClient.setQueryData(["user"], null);
+      queryClient.invalidateQueries({ queryKey: ["user"] });
       router.refresh();
-    } catch (error) {
-      console.error("Logout error:", error);
-    }
+    },
+  });
+
+  const handleLogout = () => {
+    logoutMutation.mutate();
   };
 
   return (
@@ -48,7 +40,7 @@ export default function Home() {
       <main className="flex flex-col gap-8 items-center w-full max-w-2xl">
         {/* 認証状態表示 */}
         <div className="w-full p-6 bg-white dark:bg-gray-800 rounded-lg shadow-md">
-          {loading ? (
+          {isLoading ? (
             <p className="text-gray-600 dark:text-gray-400">読み込み中...</p>
           ) : user ? (
             <div className="space-y-4">
@@ -62,9 +54,10 @@ export default function Home() {
               <div className="flex gap-4">
                 <button
                   onClick={handleLogout}
-                  className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors"
+                  disabled={logoutMutation.isPending}
+                  className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors disabled:opacity-50"
                 >
-                  ログアウト
+                  {logoutMutation.isPending ? "ログアウト中..." : "ログアウト"}
                 </button>
                 <Link
                   href="/dashboard"

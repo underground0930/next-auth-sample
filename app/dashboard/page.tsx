@@ -1,53 +1,48 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-
-interface User {
-  id: string;
-  name: string;
-  email: string;
-}
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { fetchUser, logout } from "@/lib/api";
+import { useEffect } from "react";
 
 export default function DashboardPage() {
-  const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
   const router = useRouter();
+  const queryClient = useQueryClient();
 
+  // ユーザー情報を取得
+  const {
+    data: user,
+    isLoading,
+    isError,
+  } = useQuery({
+    queryKey: ["user"],
+    queryFn: fetchUser,
+    retry: false,
+  });
+
+  // 認証エラーの場合はログインページへリダイレクト
   useEffect(() => {
-    const fetchUser = async () => {
-      try {
-        const response = await fetch("/api/user");
-        if (response.ok) {
-          const data = await response.json();
-          setUser(data.user);
-        } else {
-          // 認証エラーの場合はログインページへ
-          router.push("/login");
-        }
-      } catch (error) {
-        console.error("Fetch user error:", error);
-        router.push("/login");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchUser();
-  }, [router]);
-
-  const handleLogout = async () => {
-    try {
-      await fetch("/api/logout", { method: "POST" });
-      router.push("/");
-      router.refresh();
-    } catch (error) {
-      console.error("Logout error:", error);
+    if (isError) {
+      router.push("/login");
     }
+  }, [isError, router]);
+
+  // ログアウトmutation
+  const logoutMutation = useMutation({
+    mutationFn: logout,
+    onSuccess: () => {
+      queryClient.setQueryData(["user"], null);
+      queryClient.invalidateQueries({ queryKey: ["user"] });
+      router.push("/");
+    },
+  });
+
+  const handleLogout = () => {
+    logoutMutation.mutate();
   };
 
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
         <p className="text-gray-600 dark:text-gray-400">読み込み中...</p>
@@ -55,7 +50,7 @@ export default function DashboardPage() {
     );
   }
 
-  if (!user) {
+  if (!user || isError) {
     return null;
   }
 
@@ -75,9 +70,10 @@ export default function DashboardPage() {
               </span>
               <button
                 onClick={handleLogout}
-                className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors text-sm"
+                disabled={logoutMutation.isPending}
+                className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors text-sm disabled:opacity-50"
               >
-                ログアウト
+                {logoutMutation.isPending ? "ログアウト中..." : "ログアウト"}
               </button>
             </div>
           </div>
