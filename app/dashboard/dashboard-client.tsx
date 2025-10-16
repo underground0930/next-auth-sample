@@ -1,19 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { User } from "@/lib/api";
 import { useAuth } from "@/lib/hooks/useAuth";
 
-type Props = {
-  initialUser: User;
-};
-
-export function DashboardClient({ initialUser }: Props) {
-  const { user, logout, isLoggingOut } = useAuth({ initialUser });
-
-  if (!user) {
-    return null;
-  }
+export function DashboardClient() {
+  const { user, logout, isLoggingOut } = useAuth();
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
@@ -27,7 +18,7 @@ export function DashboardClient({ initialUser }: Props) {
             </div>
             <div className="flex items-center gap-4">
               <span className="text-sm text-gray-600 dark:text-gray-400">
-                {user.name}
+                {user?.name}
               </span>
               <button
                 onClick={logout}
@@ -55,9 +46,9 @@ export function DashboardClient({ initialUser }: Props) {
                 ユーザー情報
               </h3>
               <ul className="space-y-1 text-sm text-blue-800 dark:text-blue-300">
-                <li>ID: {user.id}</li>
-                <li>名前: {user.name}</li>
-                <li>メール: {user.email}</li>
+                <li>ID: {user?.id}</li>
+                <li>名前: {user?.name}</li>
+                <li>メール: {user?.email}</li>
               </ul>
             </div>
           </div>
