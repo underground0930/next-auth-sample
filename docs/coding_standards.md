@@ -67,13 +67,51 @@
   }
   ```
 
+### Server Components と Client Components
+
+- **デフォルトは Server Component**
+  - 認証チェックやデータ取得はサーバー側で実行
+  - `getUser()` などのサーバー関数を呼ぶ
+
+- **Client Component は "use client" を明示**
+  - インタラクティブな機能（ボタン、フォーム等）
+  - useAuth フックなどを使用
+
+- **ハイブリッド方式を推奨**
+  ```typescript
+  // page.tsx (Server Component)
+  export default async function Page() {
+    const user = await getUser(); // サーバー側で取得
+    return <PageClient initialUser={user} />; // Clientに渡す
+  }
+
+  // PageClient.tsx (Client Component)
+  "use client";
+  export function PageClient({ initialUser }) {
+    const { user } = useAuth({ initialUser }); // キャッシュ管理
+    return <div>{user.name}</div>;
+  }
+  ```
+
+### カスタムフック
+
+- **useAuth フックを使用**
+  ```typescript
+  const { user, logout, isLoggingOut, isAuthenticated } = useAuth();
+  ```
+
 ### ファイル構成
 
 - **API関数は `lib/` ディレクトリに配置**
-  - `lib/api.ts` - API関数の集約
-  - axios client の設定もここに含める
+  - `lib/api.ts` - クライアント側API関数（axios）
+  - `lib/auth.ts` - サーバー側認証関数（getUser等）
+  - `lib/hooks/` - カスタムフック
 
 - **型定義はファイル内で定義、共通型は `lib/api.ts` に export**
+
+- **Page は Server Component、UI は Client Component に分離**
+  - `app/page.tsx` - Server Component
+  - `app/PageClient.tsx` - Client Component
 
 ## コードスタイル
 
