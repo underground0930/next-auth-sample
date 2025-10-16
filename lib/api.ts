@@ -9,17 +9,17 @@ const apiClient = axios.create({
 });
 
 // ユーザー型定義
-export interface User {
+export type User = {
   id: string;
   name: string;
   email: string;
-}
+};
 
 // ログイン認証情報の型
-export interface LoginCredentials {
+export type LoginCredentials = {
   id: string;
   password: string;
-}
+};
 
 // API関数
 
