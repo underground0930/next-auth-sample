@@ -1,10 +1,15 @@
 "use client";
 
 import Link from "next/link";
+import { User } from "@/lib/api";
 import { useAuth } from "@/lib/hooks/useAuth";
 
-export function HomeClient() {
-  const { user, logout, isLoggingOut } = useAuth();
+type Props = {
+  initialUser: User | null;
+};
+
+export function HomeClient({ initialUser }: Props) {
+  const { user, logout, isLoggingOut } = useAuth({ initialUser });
 
   return (
     <div className="font-sans min-h-screen p-8 flex items-center justify-center bg-gray-50 dark:bg-gray-900">

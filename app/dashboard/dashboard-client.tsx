@@ -1,10 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { useAuth } from "@/lib/hooks/useAuth";
+import { useAuthenticatedUser } from "@/lib/hooks/use-authenticated-user";
 
 export function DashboardClient() {
-  const { user, logout, isLoggingOut } = useAuth();
+  const { user, logout, isLoggingOut } = useAuthenticatedUser();
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
@@ -18,7 +18,7 @@ export function DashboardClient() {
             </div>
             <div className="flex items-center gap-4">
               <span className="text-sm text-gray-600 dark:text-gray-400">
-                {user?.name}
+                {user.name}
               </span>
               <button
                 onClick={logout}
@@ -46,9 +46,9 @@ export function DashboardClient() {
                 ユーザー情報
               </h3>
               <ul className="space-y-1 text-sm text-blue-800 dark:text-blue-300">
-                <li>ID: {user?.id}</li>
-                <li>名前: {user?.name}</li>
-                <li>メール: {user?.email}</li>
+                <li>ID: {user.id}</li>
+                <li>名前: {user.name}</li>
+                <li>メール: {user.email}</li>
               </ul>
             </div>
           </div>
