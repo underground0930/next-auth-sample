@@ -18,17 +18,11 @@ export async function GET() {
 
     // セッション検証
     if (!authSession || authSession.value !== SESSION_TOKEN) {
-      return NextResponse.json(
-        { error: "Unauthorized" },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     // ユーザー情報を返す
-    return NextResponse.json(
-      { user: USER_DATA },
-      { status: 200 }
-    );
+    return NextResponse.json({ user: USER_DATA }, { status: 200 });
   } catch (error) {
     console.error("Get user error:", error);
     return NextResponse.json(

@@ -37,10 +37,7 @@ export async function POST(request: NextRequest) {
     }
 
     // 認証失敗
-    return NextResponse.json(
-      { error: "Invalid credentials" },
-      { status: 401 }
-    );
+    return NextResponse.json({ error: "Invalid credentials" }, { status: 401 });
   } catch (error) {
     console.error("Login error:", error);
     return NextResponse.json(
