@@ -1,8 +1,9 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useAuth } from "@/lib/hooks/useAuth";
+import { useAuth } from "@/hooks/use-auth";
 import { User } from "@/lib/api";
+import { Loading } from "@/components/loading";
 
 type AuthGuardProps = {
   children: React.ReactNode;
@@ -14,11 +15,7 @@ export function AuthGuard({ children, initialUser }: AuthGuardProps) {
   const { user, isLoading } = useAuth({ initialUser });
 
   if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
-        <div className="text-gray-600 dark:text-gray-400">読み込み中...</div>
-      </div>
-    );
+    return <Loading />;
   }
 
   if (!user) {
